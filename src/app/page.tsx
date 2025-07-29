@@ -6,11 +6,11 @@ export default function Home() {
       <div className="w-full max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-headline text-accent">
-            Reflect & Export
+            Weekly Reflection Template 
           </h1>
-          <p className="text-muted-foreground mt-2">
-            Your weekly companion for spiritual reflection.
-          </p>
+          {/* <p className="text-muted-foreground mt-2">
+            Weekly reflection writing companion
+          </p> */}
         </div>
         <ReflectionForm />
       </div>

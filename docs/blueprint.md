@@ -1,4 +1,4 @@
-# **App Name**: Reflect & Export
+# **App Name**: Weekly Reflection
 
 ## Core Features:
 

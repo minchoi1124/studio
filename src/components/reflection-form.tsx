@@ -89,7 +89,7 @@ export default function ReflectionForm() {
       const filename = `${formattedDate}_${firstName}${lastName}_CPIWR.docx`;
 
       const doc = new Document({
-        creator: "Reflect & Export App",
+        creator: "Weekly Reflection App",
         title: `Reflection for ${format(serviceDate, "yyyy-MM-dd")}`,
         description: "Weekly Reflection Document",
         sections: [
