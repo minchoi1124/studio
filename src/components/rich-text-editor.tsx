@@ -1,5 +1,5 @@
 "use client";
-import React, { forwardRef } from 'react';
+import React from 'react';
 import ReactQuill, { ReactQuillProps } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -9,8 +9,10 @@ interface RichTextEditorProps extends ReactQuillProps {
   placeholder?: string;
 }
 
-const RichTextEditor = forwardRef<ReactQuill, RichTextEditorProps>(
-  ({ value, onChange, placeholder, ...props }, ref) => {
+class RichTextEditor extends React.Component<RichTextEditorProps> {
+  render() {
+    const { value, onChange, placeholder, ...props } = this.props;
+
     const modules = {
       toolbar: [
         [{ 'header': [1, 2, 3, false] }],
@@ -31,7 +33,6 @@ const RichTextEditor = forwardRef<ReactQuill, RichTextEditorProps>(
     return (
       <div className="bg-background">
         <ReactQuill
-          ref={ref}
           theme="snow"
           value={value}
           onChange={onChange}
@@ -44,8 +45,6 @@ const RichTextEditor = forwardRef<ReactQuill, RichTextEditorProps>(
       </div>
     );
   }
-);
-
-RichTextEditor.displayName = 'RichTextEditor';
+}
 
 export default RichTextEditor;
