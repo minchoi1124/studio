@@ -87,5 +87,6 @@ body {
   }
   .ql-editor {
     min-height: 8rem;
+    font-family: theme('fontFamily.body');
   }
 }
