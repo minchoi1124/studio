@@ -42,7 +42,7 @@ const formSchema = z.object({
   firstName: z.string().min(1, "First name is required."),
   lastName: z.string().min(1, "Last name is required."),
   serviceDate: z.date({
-    required_error: "A date of service is required.",
+    required_error: "A date is required.",
   }),
   thanksgiving: z.string().min(1, "This field is required."),
   whatYouHeard: z.string().min(1, "This field is required."),
@@ -143,7 +143,7 @@ export default function ReflectionForm() {
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader>
              <CardTitle className="font-headline text-2xl text-accent">Your Details</CardTitle>
-             <CardDescription>Start by entering your name and the date of service.</CardDescription>
+             <CardDescription>Start by entering your name and the date.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -180,7 +180,7 @@ export default function ReflectionForm() {
               name="serviceDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel className="font-headline text-accent">Service Date</FormLabel>
+                  <FormLabel className="font-headline text-accent">Date</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
