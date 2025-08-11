@@ -61,7 +61,7 @@ export default function ReflectionForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const { toast } = useToast();
-  const { sectionTimes } = useTimer();
+  const { sectionTimes, currentSection } = useTimer();
 
   useEffect(() => {
     setIsClient(true);
@@ -206,7 +206,7 @@ export default function ReflectionForm() {
                     control={form.control}
                     name="thanksgiving"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className={cn(currentSection === 'thanksgiving' && 'form-item-highlight')}>
                         <FormLabel className="font-headline text-lg text-accent">
                           Thanksgiving ({getSectionTimeText(sectionTimes.thanksgiving)})
                         </FormLabel>
@@ -224,7 +224,7 @@ export default function ReflectionForm() {
                     control={form.control}
                     name="whatYouHeard"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className={cn(currentSection === 'whatYouHeard' && 'form-item-highlight')}>
                         <FormLabel className="font-headline text-lg text-accent">MBS | What did you hear? ({getSectionTimeText(sectionTimes.whatYouHeard)})</FormLabel>
                         <FormDescription>Outline main points, sub points, and short descriptions of illustrations.</FormDescription>
                         <FormControl>
@@ -241,7 +241,7 @@ export default function ReflectionForm() {
                     control={form.control}
                     name="reflection"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className={cn(currentSection === 'reflection' && 'form-item-highlight')}>
                         <FormLabel className="font-headline text-lg text-accent">MBS | Reflection ({getSectionTimeText(sectionTimes.reflection)})</FormLabel>
                         <FormDescription>
                           Utilizing the 4 Key Elements to Message Reflection Handout (about God, life, ministry, yourself).
@@ -260,7 +260,7 @@ export default function ReflectionForm() {
                     control={form.control}
                     name="prayer"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className={cn(currentSection === 'prayer' && 'form-item-highlight')}>
                         <FormLabel className="font-headline text-lg text-accent">Write out a prayer ({getSectionTimeText(sectionTimes.prayer)})</FormLabel>
                         <FormControl>
                           <RichTextEditor
@@ -276,7 +276,7 @@ export default function ReflectionForm() {
                     control={form.control}
                     name="challenges"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className={cn(currentSection === 'challenges' && 'form-item-highlight')}>
                         <FormLabel className="font-headline text-lg text-accent">Current Challenges or Prayer Requests: Personal ({getSectionTimeText(sectionTimes.challenges)})</FormLabel>
                         <FormControl>
                           <RichTextEditor

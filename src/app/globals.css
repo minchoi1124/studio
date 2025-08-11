@@ -89,4 +89,10 @@ body {
     min-height: 8rem;
     font-family: theme('fontFamily.body');
   }
+  .form-item-highlight {
+    background-color: hsl(var(--secondary));
+    border-radius: 0.5rem;
+    padding: 1rem;
+    transition: background-color 0.3s ease-in-out;
+  }
 }

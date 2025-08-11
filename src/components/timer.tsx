@@ -16,6 +16,8 @@ export default function Timer() {
     timeRemaining,
     isVisible,
     toggleVisibility,
+    currentSection,
+    currentSectionName
   } = useTimer();
   const [inputValue, setInputValue] = useState("");
 
@@ -70,6 +72,11 @@ export default function Timer() {
               <p className="text-4xl font-bold font-mono text-accent">
                 {formatTime(timeRemaining)}
               </p>
+              {currentSection && (
+                <p className="text-md text-muted-foreground mt-2">
+                  Current Section: <span className="font-bold text-accent">{currentSectionName}</span>
+                </p>
+              )}
             </div>
           )}
         </div>
