@@ -80,8 +80,7 @@ export async function generateDocx(values: FormValues) {
             }),
           },
           children: [
-            new Paragraph({ text: `Weekly Reflection`, heading: HeadingLevel.TITLE }),
-            new Paragraph({ text: `${firstName} ${lastName} - ${format(serviceDate, "MMMM d, yyyy")}`, heading: HeadingLevel.HEADING_1, spacing: { after: 200 } }),
+            new Paragraph({ text: `Weekly Reflection`, heading: HeadingLevel.TITLE, spacing: { after: 200 } }),
 
             new Paragraph({ text: "Thanksgiving (10 Min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
             ...createParagraphs(thanksgiving),
