@@ -8,6 +8,7 @@ import { format } from "date-fns";
 import { CalendarIcon, Loader2, Download } from "lucide-react";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
 import { saveAs } from "file-saver";
+import htmlToDocx from "html-to-docx";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -35,8 +36,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import RichTextEditor from "./rich-text-editor";
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First name is required."),
@@ -52,6 +53,15 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+const createParagraphsFromHtml = async (html: string) => {
+  if (!html || html === '<p><br></p>') return [new Paragraph('')];
+  const fileBuffer = await htmlToDocx(html);
+  // We are creating a temporary doc to extract its content
+  const tempDoc = await Packer.toDefaultJson(fileBuffer as Buffer);
+  return tempDoc.sections[0].children;
+};
+
 
 export default function ReflectionForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -87,6 +97,13 @@ export default function ReflectionForm() {
 
       const formattedDate = format(serviceDate, "yyyyMMdd");
       const filename = `${formattedDate}_${firstName.replace(/\s/g, "")}${lastName.replace(/\s/g, "")}_CPIWR.docx`;
+      
+      const thanksgivingParas = await createParagraphsFromHtml(thanksgiving);
+      const whatYouHeardParas = await createParagraphsFromHtml(whatYouHeard);
+      const reflectionParas = await createParagraphsFromHtml(reflection);
+      const prayerParas = await createParagraphsFromHtml(prayer);
+      const challengesParas = await createParagraphsFromHtml(challenges);
+
 
       const doc = new Document({
         creator: "Weekly Reflection App",
@@ -99,19 +116,19 @@ export default function ReflectionForm() {
               new Paragraph({ text: `${firstName} ${lastName} - ${format(serviceDate, "MMMM d, yyyy")}`, heading: HeadingLevel.HEADING_1, spacing: { after: 200 } }),
               
               new Paragraph({ text: "Thanksgiving (10 Min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
-              new Paragraph({ children: [new TextRun(thanksgiving)] }),
+              ...thanksgivingParas,
               
               new Paragraph({ text: "MBS | What did you hear? (20 min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
-              new Paragraph({ children: [new TextRun(whatYouHeard)],}),
+              ...whatYouHeardParas,
 
               new Paragraph({ text: "MBS | Reflection (20 min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
-              new Paragraph({ children: [new TextRun(reflection)] }),
+              ...reflectionParas,
 
               new Paragraph({ text: "Prayer (5 min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
-              new Paragraph({ children: [new TextRun(prayer)] }),
+              ...prayerParas,
 
               new Paragraph({ text: "Current Challenges or Prayer Requests (5 min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
-              new Paragraph({ children: [new TextRun(challenges)] }),
+              ...challengesParas,
             ],
           },
         ],
@@ -225,9 +242,8 @@ export default function ReflectionForm() {
                   <FormItem>
                     <FormLabel className="font-headline text-lg text-accent">Thanksgiving (10 Min)</FormLabel>
                     <FormControl>
-                      <Textarea
+                      <RichTextEditor
                         placeholder="Reflect on what you're grateful for..."
-                        className="resize-y min-h-[120px]"
                         {...field}
                       />
                     </FormControl>
@@ -243,9 +259,8 @@ export default function ReflectionForm() {
                     <FormLabel className="font-headline text-lg text-accent">MBS | What did you hear? (20 min)</FormLabel>
                      <FormDescription>Outline main points, sub points, and short descriptions of illustrations.</FormDescription>
                     <FormControl>
-                      <Textarea
+                       <RichTextEditor
                         placeholder="Summarize the key points of the message..."
-                        className="resize-y min-h-[150px]"
                         {...field}
                       />
                     </FormControl>
@@ -263,9 +278,8 @@ export default function ReflectionForm() {
                       Utilizing the 4 Key Elements to Message Reflection Handout (about God, life, ministry, yourself).
                     </FormDescription>
                     <FormControl>
-                      <Textarea
+                      <RichTextEditor
                         placeholder="What are your personal reflections on the message?"
-                        className="resize-y min-h-[150px]"
                         {...field}
                       />
                     </FormControl>
@@ -280,9 +294,8 @@ export default function ReflectionForm() {
                   <FormItem>
                     <FormLabel className="font-headline text-lg text-accent">Write out a prayer (5 min)</FormLabel>
                     <FormControl>
-                      <Textarea
+                       <RichTextEditor
                         placeholder="Write a prayer based on your reflections..."
-                        className="resize-y min-h-[120px]"
                         {...field}
                       />
                     </FormControl>
@@ -297,9 +310,8 @@ export default function ReflectionForm() {
                   <FormItem>
                     <FormLabel className="font-headline text-lg text-accent">Current Challenges or Prayer Requests: Personal (5 min)</FormLabel>
                     <FormControl>
-                      <Textarea
+                      <RichTextEditor
                         placeholder="List any personal challenges or prayer requests..."
-                        className="resize-y min-h-[120px]"
                         {...field}
                       />
                     </FormControl>
