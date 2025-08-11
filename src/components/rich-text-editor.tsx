@@ -39,7 +39,7 @@ class RichTextEditor extends React.Component<RichTextEditorProps> {
           modules={modules}
           formats={formats}
           placeholder={placeholder}
-          className="bg-white"
+          className="bg-card"
           {...props}
         />
       </div>
