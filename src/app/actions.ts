@@ -3,7 +3,7 @@
 
 import { z } from "zod";
 import { format } from "date-fns";
-import { Document, Packer, Paragraph, HeadingLevel, HtmlImporter, ISectionOptions } from "docx";
+import { Document, Packer, Paragraph, HeadingLevel, ISectionOptions } from "docx";
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First name is required."),
@@ -20,11 +20,24 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-// Helper to clean up HTML and provide a fallback
-const cleanHtml = (html: string): string => {
-  const cleaned = html.replace(/<p><br><\/p>/g, '').replace(/<p><\/p>/g, '');
-  return cleaned.trim() === '' ? '<p></p>' : cleaned;
+// Helper to extract plain text from Quill's HTML
+const extractText = (html: string): string[] => {
+  if (!html) return [''];
+  // Remove all HTML tags to get plain text
+  const plainText = html.replace(/<[^>]+>/g, ' ');
+  // Split into paragraphs based on what Quill uses for new lines. This might need adjustment.
+  // A simple split on <p> or <br> isn't enough as we stripped them.
+  // We'll treat the whole block as one paragraph for simplicity and robustness.
+  // Splitting by lines could be done if newlines are preserved.
+  const lines = plainText.split('\n').filter(line => line.trim() !== '');
+  return lines.length > 0 ? lines : [''];
 };
+
+const createParagraphs = (text: string) => {
+    const lines = text.replace(/<p><br><\/p>/g, '\n').replace(/<\/p><p>/g, '\n').replace(/<[^>]*>/g, '').split('\n');
+    return lines.map(line => new Paragraph(line.trim()));
+}
+
 
 export async function generateDocx(values: FormValues) {
     const {
@@ -40,14 +53,6 @@ export async function generateDocx(values: FormValues) {
 
     const formattedDate = format(serviceDate, "yyyyMMdd");
     const filename = `${formattedDate}_${firstName.replace(/\s/g, "")}${lastName.replace(/\s/g, "")}_CPIWR.docx`;
-    
-    const importer = new HtmlImporter();
-
-    const thanksgivingParas = await importer.import(cleanHtml(thanksgiving));
-    const whatYouHeardParas = await importer.import(cleanHtml(whatYouHeard));
-    const reflectionParas = await importer.import(cleanHtml(reflection));
-    const prayerParas = await importer.import(cleanHtml(prayer));
-    const challengesParas = await importer.import(cleanHtml(challenges));
 
     const doc = new Document({
       creator: "Weekly Reflection App",
@@ -58,21 +63,21 @@ export async function generateDocx(values: FormValues) {
           children: [
             new Paragraph({ text: `Weekly Reflection`, heading: HeadingLevel.TITLE }),
             new Paragraph({ text: `${firstName} ${lastName} - ${format(serviceDate, "MMMM d, yyyy")}`, heading: HeadingLevel.HEADING_1, spacing: { after: 200 } }),
-            
+
             new Paragraph({ text: "Thanksgiving (10 Min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
-            ...thanksgivingParas,
+            ...createParagraphs(thanksgiving),
             
             new Paragraph({ text: "MBS | What did you hear? (20 min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
-            ...whatYouHeardParas,
+            ...createParagraphs(whatYouHeard),
 
             new Paragraph({ text: "MBS | Reflection (20 min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
-            ...reflectionParas,
+            ...createParagraphs(reflection),
 
             new Paragraph({ text: "Prayer (5 min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
-            ...prayerParas,
+            ...createParagraphs(prayer),
 
             new Paragraph({ text: "Current Challenges or Prayer Requests (5 min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
-            ...challengesParas,
+            ...createParagraphs(challenges),
           ],
         },
       ],
