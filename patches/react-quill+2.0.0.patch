@@ -1,0 +1,23 @@
+diff --git a/node_modules/react-quill/lib/index.js b/node_modules/react-quill/lib/index.js
+index 7264871..b9a5275 100644
+--- a/node_modules/react-quill/lib/index.js
++++ b/node_modules/react-quill/lib/index.js
+@@ -7,7 +7,7 @@
+ 
+ var _quill = _interopRequireDefault(require("quill"));
+ 
+-var _reactDom = _interopRequireDefault(require("react-dom"));
++// var _reactDom = _interopRequireDefault(require("react-dom"));
+ 
+ var _propTypes = _interopRequireDefault(require("prop-types"));
+ 
+@@ -432,7 +432,7 @@
+       }
+     }, {
+       key: "findEditingArea",
+-      value: function findEditingArea() {
++      value: function findEditingArea(element) {
+         return document.querySelector('.ql-editor');
+       }
+     }, {
+

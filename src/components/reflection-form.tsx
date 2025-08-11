@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -58,7 +58,12 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function ReflectionForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -187,90 +192,94 @@ export default function ReflectionForm() {
             />
 
             <div className="space-y-6">
-              <FormField
-                control={form.control}
-                name="thanksgiving"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-headline text-lg text-accent">Thanksgiving (10 Min)</FormLabel>
-                    <FormControl>
-                      <RichTextEditor
-                        placeholder="Reflect on what you're grateful for..."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="whatYouHeard"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-headline text-lg text-accent">MBS | What did you hear? (20 min)</FormLabel>
-                     <FormDescription>Outline main points, sub points, and short descriptions of illustrations.</FormDescription>
-                    <FormControl>
-                       <RichTextEditor
-                        placeholder="Summarize the key points of the message..."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="reflection"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-headline text-lg text-accent">MBS | Reflection (20 min)</FormLabel>
-                    <FormDescription>
-                      Utilizing the 4 Key Elements to Message Reflection Handout (about God, life, ministry, yourself).
-                    </FormDescription>
-                    <FormControl>
-                      <RichTextEditor
-                        placeholder="What are your personal reflections on the message?"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="prayer"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-headline text-lg text-accent">Write out a prayer (5 min)</FormLabel>
-                    <FormControl>
-                       <RichTextEditor
-                        placeholder="Write a prayer based on your reflections..."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="challenges"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-headline text-lg text-accent">Current Challenges or Prayer Requests: Personal (5 min)</FormLabel>
-                    <FormControl>
-                      <RichTextEditor
-                        placeholder="List any personal challenges or prayer requests..."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {isClient && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="thanksgiving"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-headline text-lg text-accent">Thanksgiving (10 Min)</FormLabel>
+                        <FormControl>
+                          <RichTextEditor
+                            placeholder="Reflect on what you're grateful for..."
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="whatYouHeard"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-headline text-lg text-accent">MBS | What did you hear? (20 min)</FormLabel>
+                        <FormDescription>Outline main points, sub points, and short descriptions of illustrations.</FormDescription>
+                        <FormControl>
+                          <RichTextEditor
+                            placeholder="Summarize the key points of the message..."
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="reflection"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-headline text-lg text-accent">MBS | Reflection (20 min)</FormLabel>
+                        <FormDescription>
+                          Utilizing the 4 Key Elements to Message Reflection Handout (about God, life, ministry, yourself).
+                        </FormDescription>
+                        <FormControl>
+                          <RichTextEditor
+                            placeholder="What are your personal reflections on the message?"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="prayer"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-headline text-lg text-accent">Write out a prayer (5 min)</FormLabel>
+                        <FormControl>
+                          <RichTextEditor
+                            placeholder="Write a prayer based on your reflections..."
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="challenges"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-headline text-lg text-accent">Current Challenges or Prayer Requests: Personal (5 min)</FormLabel>
+                        <FormControl>
+                          <RichTextEditor
+                            placeholder="List any personal challenges or prayer requests..."
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
             </div>
           </CardContent>
           <CardFooter>
