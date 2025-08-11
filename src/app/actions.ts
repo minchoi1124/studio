@@ -1,8 +1,9 @@
+
 "use server";
 
 import { z } from "zod";
 import { format } from "date-fns";
-import { Document, Packer, Paragraph, HeadingLevel } from "docx";
+import { Document, Packer, Paragraph, HeadingLevel, ISectionOptions } from "docx";
 import htmlToDocx from "html-to-docx";
 
 const formSchema = z.object({
@@ -20,12 +21,23 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const createParagraphsFromHtml = async (html: string) => {
-  if (!html || html === '<p><br></p>') return [new Paragraph('')];
-  const fileBuffer = await htmlToDocx(html);
-  // We are creating a temporary doc to extract its content
-  const tempDoc = await Packer.toDefaultJson(fileBuffer as Buffer);
-  return tempDoc.sections[0].children;
+const createParagraphsFromHtml = async (html: string): Promise<ISectionOptions["children"]> => {
+  const cleanHtml = html.trim();
+  if (!cleanHtml || cleanHtml === '<p><br></p>' || cleanHtml === '<p></p>') {
+      return [new Paragraph('')];
+  }
+  try {
+    const fileBuffer = await htmlToDocx(cleanHtml);
+    // We are creating a temporary doc to extract its content
+    const tempDoc = await Packer.toDefaultJson(fileBuffer as Buffer);
+    if (tempDoc.sections.length > 0 && tempDoc.sections[0].children.length > 0) {
+      return tempDoc.sections[0].children;
+    }
+  } catch (error) {
+    console.error("Error converting HTML to DOCX paragraphs:", error);
+  }
+  // Fallback for empty or invalid HTML
+  return [new Paragraph('')];
 };
 
 export async function generateDocx(values: FormValues) {
