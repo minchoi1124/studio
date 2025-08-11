@@ -3,7 +3,7 @@
 
 import { z } from "zod";
 import { format } from "date-fns";
-import { Document, Packer, Paragraph, HeadingLevel, HtmlImporter } from "docx";
+import { Document, Packer, Paragraph, HeadingLevel, HtmlImporter, ISectionOptions } from "docx";
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First name is required."),
@@ -20,6 +20,11 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+// Helper to clean up HTML and provide a fallback
+const cleanHtml = (html: string): string => {
+  const cleaned = html.replace(/<p><br><\/p>/g, '').replace(/<p><\/p>/g, '');
+  return cleaned.trim() === '' ? '<p></p>' : cleaned;
+};
 
 export async function generateDocx(values: FormValues) {
     const {
@@ -38,12 +43,11 @@ export async function generateDocx(values: FormValues) {
     
     const importer = new HtmlImporter();
 
-    const thanksgivingParas = await importer.import(thanksgiving);
-    const whatYouHeardParas = await importer.import(whatYouHeard);
-    const reflectionParas = await importer.import(reflection);
-    const prayerParas = await importer.import(prayer);
-    const challengesParas = await importer.import(challenges);
-
+    const thanksgivingParas = await importer.import(cleanHtml(thanksgiving));
+    const whatYouHeardParas = await importer.import(cleanHtml(whatYouHeard));
+    const reflectionParas = await importer.import(cleanHtml(reflection));
+    const prayerParas = await importer.import(cleanHtml(prayer));
+    const challengesParas = await importer.import(cleanHtml(challenges));
 
     const doc = new Document({
       creator: "Weekly Reflection App",
