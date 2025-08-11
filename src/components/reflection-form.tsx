@@ -36,6 +36,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
+import { useTimer } from "@/hooks/use-timer";
 import { generateDocx } from "@/app/actions";
 
 const RichTextEditor = dynamic(() => import("./rich-text-editor"), { ssr: false });
@@ -60,6 +61,7 @@ export default function ReflectionForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const { toast } = useToast();
+  const { sectionTimes } = useTimer();
 
   useEffect(() => {
     setIsClient(true);
@@ -111,8 +113,14 @@ export default function ReflectionForm() {
     }
   };
 
+  const getSectionTimeText = (time: number | null) => {
+    if (time === null) return "";
+    if (time < 1) return "<1 min";
+    return `${Math.round(time)} min`;
+  };
+
   return (
-    <Card className="w-full shadow-2xl rounded-xl border-2 border-primary/20">
+    <Card className="w-full shadow-2xl rounded-xl border-2 border-primary/20 mt-8">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader>
@@ -199,7 +207,9 @@ export default function ReflectionForm() {
                     name="thanksgiving"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="font-headline text-lg text-accent">Thanksgiving (10 Min)</FormLabel>
+                        <FormLabel className="font-headline text-lg text-accent">
+                          Thanksgiving ({getSectionTimeText(sectionTimes.thanksgiving)})
+                        </FormLabel>
                         <FormControl>
                           <RichTextEditor
                             placeholder="Reflect on what you're grateful for..."
@@ -215,7 +225,7 @@ export default function ReflectionForm() {
                     name="whatYouHeard"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="font-headline text-lg text-accent">MBS | What did you hear? (20 min)</FormLabel>
+                        <FormLabel className="font-headline text-lg text-accent">MBS | What did you hear? ({getSectionTimeText(sectionTimes.whatYouHeard)})</FormLabel>
                         <FormDescription>Outline main points, sub points, and short descriptions of illustrations.</FormDescription>
                         <FormControl>
                           <RichTextEditor
@@ -232,7 +242,7 @@ export default function ReflectionForm() {
                     name="reflection"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="font-headline text-lg text-accent">MBS | Reflection (20 min)</FormLabel>
+                        <FormLabel className="font-headline text-lg text-accent">MBS | Reflection ({getSectionTimeText(sectionTimes.reflection)})</FormLabel>
                         <FormDescription>
                           Utilizing the 4 Key Elements to Message Reflection Handout (about God, life, ministry, yourself).
                         </FormDescription>
@@ -251,7 +261,7 @@ export default function ReflectionForm() {
                     name="prayer"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="font-headline text-lg text-accent">Write out a prayer (5 min)</FormLabel>
+                        <FormLabel className="font-headline text-lg text-accent">Write out a prayer ({getSectionTimeText(sectionTimes.prayer)})</FormLabel>
                         <FormControl>
                           <RichTextEditor
                             placeholder="Write a prayer based on your reflections..."
@@ -267,7 +277,7 @@ export default function ReflectionForm() {
                     name="challenges"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="font-headline text-lg text-accent">Current Challenges or Prayer Requests: Personal (5 min)</FormLabel>
+                        <FormLabel className="font-headline text-lg text-accent">Current Challenges or Prayer Requests: Personal ({getSectionTimeText(sectionTimes.challenges)})</FormLabel>
                         <FormControl>
                           <RichTextEditor
                             placeholder="List any personal challenges or prayer requests..."
