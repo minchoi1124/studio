@@ -82,19 +82,19 @@ export async function generateDocx(values: FormValues) {
           children: [
             new Paragraph({ text: `Weekly Reflection`, heading: HeadingLevel.TITLE, spacing: { after: 200 } }),
 
-            new Paragraph({ text: "Thanksgiving (10 Min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
+            new Paragraph({ text: "Thanksgiving", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
             ...createParagraphs(thanksgiving),
             
-            new Paragraph({ text: "MBS | What did you hear? (20 min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
+            new Paragraph({ text: "MBS | What did you hear?", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
             ...createParagraphs(whatYouHeard),
 
-            new Paragraph({ text: "MBS | Reflection (20 min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
+            new Paragraph({ text: "MBS | Reflection", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
             ...createParagraphs(reflection),
 
-            new Paragraph({ text: "Prayer (5 min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
+            new Paragraph({ text: "Prayer", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
             ...createParagraphs(prayer),
 
-            new Paragraph({ text: "Current Challenges or Prayer Requests (5 min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
+            new Paragraph({ text: "Current Challenges or Prayer Requests", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
             ...createParagraphs(challenges),
           ],
         },
