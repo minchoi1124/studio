@@ -3,7 +3,7 @@
 
 import { z } from "zod";
 import { format } from "date-fns";
-import { Document, Packer, Paragraph, HeadingLevel, ISectionOptions } from "docx";
+import { Document, Packer, Paragraph, HeadingLevel, Header, TextRun } from "docx";
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First name is required."),
@@ -20,21 +20,22 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-// Helper to extract plain text from Quill's HTML
-const extractText = (html: string): string[] => {
-  if (!html) return [''];
-  // Remove all HTML tags to get plain text
-  const plainText = html.replace(/<[^>]+>/g, ' ');
-  // Split into paragraphs based on what Quill uses for new lines. This might need adjustment.
-  // A simple split on <p> or <br> isn't enough as we stripped them.
-  // We'll treat the whole block as one paragraph for simplicity and robustness.
-  // Splitting by lines could be done if newlines are preserved.
-  const lines = plainText.split('\n').filter(line => line.trim() !== '');
-  return lines.length > 0 ? lines : [''];
-};
-
 const createParagraphs = (text: string) => {
-    const lines = text.replace(/<p><br><\/p>/g, '\n').replace(/<\/p><p>/g, '\n').replace(/<[^>]*>/g, '').split('\n');
+    // Basic cleanup to handle common rich text editor artifacts
+    const cleanedText = text
+        .replace(/<p><br><\/p>/g, '\n') // Replace empty paragraphs with a newline
+        .replace(/<\/p><p>/g, '\n') // Replace paragraph breaks with a newline
+        .replace(/<br>/g, '\n') // Replace <br> with a newline
+        .replace(/<[^>]*>/g, ''); // Strip all other HTML tags
+
+    // Split into lines and create a paragraph for each non-empty line
+    const lines = cleanedText.split('\n').filter(line => line.trim() !== '');
+    
+    // If there are no lines after cleaning, return an array with one empty paragraph to avoid errors
+    if (lines.length === 0) {
+        return [new Paragraph("")];
+    }
+    
     return lines.map(line => new Paragraph(line.trim()));
 }
 
@@ -60,6 +61,24 @@ export async function generateDocx(values: FormValues) {
       description: "Weekly Reflection Document",
       sections: [
         {
+          headers: {
+            default: new Header({
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({ text: "Date: ", bold: true }),
+                    new TextRun(format(serviceDate, "MMMM d, yyyy")),
+                  ],
+                }),
+                new Paragraph({
+                    children: [
+                      new TextRun({ text: "Name: ", bold: true }),
+                      new TextRun(`${firstName} ${lastName}`),
+                    ],
+                }),
+              ],
+            }),
+          },
           children: [
             new Paragraph({ text: `Weekly Reflection`, heading: HeadingLevel.TITLE }),
             new Paragraph({ text: `${firstName} ${lastName} - ${format(serviceDate, "MMMM d, yyyy")}`, heading: HeadingLevel.HEADING_1, spacing: { after: 200 } }),
