@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { format } from "date-fns";
 import { CalendarIcon, Loader2, Download } from "lucide-react";
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
 import { saveAs } from "file-saver";
-import htmlToDocx from "html-to-docx";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -37,7 +36,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
-import RichTextEditor from "./rich-text-editor";
+import { generateDocx } from "@/app/actions";
+
+const RichTextEditor = dynamic(() => import("./rich-text-editor"), { ssr: false });
+
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First name is required."),
@@ -53,15 +55,6 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
-
-const createParagraphsFromHtml = async (html: string) => {
-  if (!html || html === '<p><br></p>') return [new Paragraph('')];
-  const fileBuffer = await htmlToDocx(html);
-  // We are creating a temporary doc to extract its content
-  const tempDoc = await Packer.toDefaultJson(fileBuffer as Buffer);
-  return tempDoc.sections[0].children;
-};
-
 
 export default function ReflectionForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -84,64 +77,23 @@ export default function ReflectionForm() {
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     try {
-      const {
-        firstName,
-        lastName,
-        serviceDate,
-        thanksgiving,
-        whatYouHeard,
-        reflection,
-        prayer,
-        challenges,
-      } = values;
-
-      const formattedDate = format(serviceDate, "yyyyMMdd");
-      const filename = `${formattedDate}_${firstName.replace(/\s/g, "")}${lastName.replace(/\s/g, "")}_CPIWR.docx`;
-      
-      const thanksgivingParas = await createParagraphsFromHtml(thanksgiving);
-      const whatYouHeardParas = await createParagraphsFromHtml(whatYouHeard);
-      const reflectionParas = await createParagraphsFromHtml(reflection);
-      const prayerParas = await createParagraphsFromHtml(prayer);
-      const challengesParas = await createParagraphsFromHtml(challenges);
-
-
-      const doc = new Document({
-        creator: "Weekly Reflection App",
-        title: `Reflection for ${format(serviceDate, "yyyy-MM-dd")}`,
-        description: "Weekly Reflection Document",
-        sections: [
-          {
-            children: [
-              new Paragraph({ text: `Weekly Reflection`, heading: HeadingLevel.TITLE }),
-              new Paragraph({ text: `${firstName} ${lastName} - ${format(serviceDate, "MMMM d, yyyy")}`, heading: HeadingLevel.HEADING_1, spacing: { after: 200 } }),
-              
-              new Paragraph({ text: "Thanksgiving (10 Min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
-              ...thanksgivingParas,
-              
-              new Paragraph({ text: "MBS | What did you hear? (20 min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
-              ...whatYouHeardParas,
-
-              new Paragraph({ text: "MBS | Reflection (20 min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
-              ...reflectionParas,
-
-              new Paragraph({ text: "Prayer (5 min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
-              ...prayerParas,
-
-              new Paragraph({ text: "Current Challenges or Prayer Requests (5 min)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
-              ...challengesParas,
-            ],
-          },
-        ],
-      });
-
-      const blob = await Packer.toBlob(doc);
-      saveAs(blob, filename);
-
-      toast({
-        title: "Export Successful",
-        description: "Your reflection has been downloaded.",
-      });
-
+      const result = await generateDocx(values);
+      if (result) {
+        const byteCharacters = atob(result.buffer);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], {
+          type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        });
+        saveAs(blob, result.filename);
+        toast({
+          title: "Export Successful",
+          description: "Your reflection has been downloaded.",
+        });
+      }
     } catch (error) {
       console.error("Failed to generate document:", error);
       toast({
