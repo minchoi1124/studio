@@ -56,7 +56,7 @@ export default function Timer() {
         </Button>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col md:flex-row items-center gap-4">
+        <div className="flex flex-col items-center gap-4">
           <div className="flex items-center gap-2">
             <Input
               type="time"
@@ -67,7 +67,7 @@ export default function Timer() {
             <Button onClick={handleSetTime}>Set End Time</Button>
           </div>
           {endTime && isVisible && (
-            <div className="text-center md:text-left">
+            <div className="text-center mt-4">
               <p className="text-sm text-muted-foreground">Time Remaining:</p>
               <p className="text-4xl font-bold font-mono text-accent">
                 {formatTime(timeRemaining)}
