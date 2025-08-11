@@ -86,7 +86,7 @@ export default function ReflectionForm() {
       } = values;
 
       const formattedDate = format(serviceDate, "yyyyMMdd");
-      const filename = `${formattedDate}_${firstName}${lastName}_CPIWR.docx`;
+      const filename = `${formattedDate}_${firstName.replace(/\s/g, "")}${lastName.replace(/\s/g, "")}_CPIWR.docx`;
 
       const doc = new Document({
         creator: "Weekly Reflection App",
