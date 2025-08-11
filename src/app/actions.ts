@@ -3,8 +3,7 @@
 
 import { z } from "zod";
 import { format } from "date-fns";
-import { Document, Packer, Paragraph, HeadingLevel, ISectionOptions } from "docx";
-import htmlToDocx from "html-to-docx";
+import { Document, Packer, Paragraph, HeadingLevel, HtmlImporter } from "docx";
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First name is required."),
@@ -21,24 +20,6 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const createParagraphsFromHtml = async (html: string): Promise<ISectionOptions["children"]> => {
-  const cleanHtml = html.trim();
-  if (!cleanHtml || cleanHtml === '<p><br></p>' || cleanHtml === '<p></p>') {
-      return [new Paragraph('')];
-  }
-  try {
-    const fileBuffer = await htmlToDocx(cleanHtml);
-    // We are creating a temporary doc to extract its content
-    const tempDoc = await Packer.toDefaultJson(fileBuffer as Buffer);
-    if (tempDoc.sections.length > 0 && tempDoc.sections[0].children.length > 0) {
-      return tempDoc.sections[0].children;
-    }
-  } catch (error) {
-    console.error("Error converting HTML to DOCX paragraphs:", error);
-  }
-  // Fallback for empty or invalid HTML
-  return [new Paragraph('')];
-};
 
 export async function generateDocx(values: FormValues) {
     const {
@@ -55,11 +36,13 @@ export async function generateDocx(values: FormValues) {
     const formattedDate = format(serviceDate, "yyyyMMdd");
     const filename = `${formattedDate}_${firstName.replace(/\s/g, "")}${lastName.replace(/\s/g, "")}_CPIWR.docx`;
     
-    const thanksgivingParas = await createParagraphsFromHtml(thanksgiving);
-    const whatYouHeardParas = await createParagraphsFromHtml(whatYouHeard);
-    const reflectionParas = await createParagraphsFromHtml(reflection);
-    const prayerParas = await createParagraphsFromHtml(prayer);
-    const challengesParas = await createParagraphsFromHtml(challenges);
+    const importer = new HtmlImporter();
+
+    const thanksgivingParas = await importer.import(thanksgiving);
+    const whatYouHeardParas = await importer.import(whatYouHeard);
+    const reflectionParas = await importer.import(reflection);
+    const prayerParas = await importer.import(prayer);
+    const challengesParas = await importer.import(challenges);
 
 
     const doc = new Document({
