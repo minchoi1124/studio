@@ -126,11 +126,11 @@ export const useTimer = () => {
       }
     };
 
-    calculateTimes(); 
+    calculateTimes();
     const interval = setInterval(calculateTimes, 1000);
 
     return () => clearInterval(interval);
-  }, [endTime, startTime, totalDuration, _setTimeRemaining, _setSectionTimes, _setCurrentSection, _setCurrentSectionName]);
+  }, [endTime, startTime, totalDuration]);
   
   return {
     endTime,
